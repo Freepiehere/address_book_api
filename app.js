@@ -1,48 +1,40 @@
-var contacts = require('./routes/contacts');
-var express = require('express');
-var app = express();
-app.use('/contact', contacts);
+var contacts = require('./routes/index');
 
-const PORT = process.env.PORT || 9200;
+const express = require('express');
+const path = require('path');
+const favicon = require('static-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 
+const app = express();
+app.use(express.json());
+app.use(bodyParser.json());
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
+
+app.use(favicon());
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded());
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+	console.log(`app listening to port ${PORT}`)
+});
 app.get("/", (req,res) => {
 	console.log("Responding to root route")
 	res.send("hello from root")
 });
 
-app.get("/contact", (req,res) => {
+app.use("/",contacts);
+/*app.get("/contact", (req,res) => {
 	res.send("welcome to the address book.\nSuch Emtpy")
 });
-var elastic = require('./elasticsearch');
-elastic.indexExists().then(function (exists) {
-	if (exists) {
-		return elastic.deleteIndex();
-	}
-}).then(function () {
-	return elastic.initIndex().then(elastic.initMapping).then(function () {
-		//add a few contacts for autocomplete
-		var promises = [
-			{'name':'James','work':'na','cell':'7038590021','email':'james.cameron96@gmail.com','birthday':'09/04/1996','address':'a','city':'c','state':'s'},
-			{'name':'Melody','work':'na','cell':'na','email':'melody@eaiti.com','birthday':'na','address':'a1','city':'c1','state':'s1'}
-		].map(function (contact) {
-			return elastic.addContact({
-				name:contact.name,
-				work:contact.work,
-				cell:contact.cell,
-				email:contact.email,
-				birthday:contact.birthday,
-				address:contact.address,
-				city:contact.city,
-				state:contact.state,
-				metadata: {
-					nameLength: contact.name.length
-				}
-			});
-		});
-		return Promise.all(promises);
-	});
-});
+*/
 
-app.listen(PORT, () => {
-	console.log(`app listening to port ${PORT}`)
-});
+
